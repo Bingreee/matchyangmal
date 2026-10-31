@@ -5,6 +5,8 @@
  */
 export interface SaveData {
   bestScore: number;
+  /** 가장 멀리 간 스테이지 */
+  bestStage: number;
   playCount: number;
   /** 나중에 '사라진 양말 도감'에 쓸 자리 */
   collection: string[];
@@ -15,7 +17,7 @@ export interface SaveStore {
   save(data: SaveData): void;
 }
 
-const DEFAULT_DATA: SaveData = { bestScore: 0, playCount: 0, collection: [] };
+const DEFAULT_DATA: SaveData = { bestScore: 0, bestStage: 0, playCount: 0, collection: [] };
 
 export class LocalSaveStore implements SaveStore {
   constructor(private readonly key = 'matchyangmal.save.v1') {}
@@ -42,11 +44,12 @@ export class LocalSaveStore implements SaveStore {
 export const saveStore: SaveStore = new LocalSaveStore();
 
 /** 한 판이 끝났을 때 기록을 반영하고, 최고 기록 갱신 여부를 돌려줍니다. */
-export function recordResult(score: number): { best: number; isNewBest: boolean } {
+export function recordResult(score: number, stage: number): { best: number; isNewBest: boolean; bestStage: number } {
   const data = saveStore.load();
   const isNewBest = score > data.bestScore;
   data.playCount += 1;
   if (isNewBest) data.bestScore = score;
+  data.bestStage = Math.max(data.bestStage, stage);
   saveStore.save(data);
-  return { best: data.bestScore, isNewBest };
+  return { best: data.bestScore, isNewBest, bestStage: data.bestStage };
 }

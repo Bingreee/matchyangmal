@@ -1,5 +1,6 @@
 import { GAME_CONFIG } from '../config';
 import { createPieces, type Rng, type SockPiece } from './sockDesign';
+import type { StageSettings } from './stages';
 
 export type GameStatus = 'playing' | 'cleared' | 'failed';
 
@@ -18,6 +19,7 @@ export interface GameSummary {
   maxCombo: number;
   timeLeftMs: number;
   timeBonus: number;
+  stars: number;
 }
 
 /**
@@ -41,13 +43,25 @@ export class MatchGame {
   private lastMatchAt = -Infinity;
   private elapsedMs = 0;
 
+  readonly timeLimitMs: number;
+
   constructor(
+    readonly stage: StageSettings,
     private readonly cfg = GAME_CONFIG,
     rng: Rng = Math.random,
   ) {
-    this.totalPairs = cfg.pairCount;
-    this.pieces = createPieces(cfg.pairCount, rng);
-    this.timeLeftMs = cfg.timeLimitSec * 1000;
+    this.totalPairs = stage.pairs;
+    this.pieces = createPieces(stage.pairs, stage.colors, rng);
+    this.timeLimitMs = stage.timeSec * 1000;
+    this.timeLeftMs = this.timeLimitMs;
+  }
+
+  /** 클리어 별점 (1~3). 남은 시간 비율로 정합니다. */
+  stars(): number {
+    const ratio = this.timeLeftMs / this.timeLimitMs;
+    if (ratio >= this.cfg.stars.three) return 3;
+    if (ratio >= this.cfg.stars.two) return 2;
+    return 1;
   }
 
   get selectedUid(): number | null {
@@ -100,6 +114,7 @@ export class MatchGame {
       maxCombo: this.maxCombo,
       timeLeftMs: this.timeLeftMs,
       timeBonus: this.timeBonus,
+      stars: this.status === 'cleared' ? this.stars() : 0,
     };
   }
 
