@@ -7,11 +7,27 @@ export const GAME_CONFIG = {
   width: 720,
   height: 1280,
 
-  /** 한 판에 나오는 양말 짝 수 (양말 개수 = 짝 수 × 2) */
-  pairCount: 6,
+  /**
+   * 스테이지 표. 클리어하면 다음 줄로 넘어갑니다.
+   * - pairs: 양말 짝 수 (양말 개수 = 짝 × 2)
+   * - timeSec: 제한 시간 (초)
+   * - colors: 쓰는 바탕색 수. 짝 수보다 적으면 '같은 색, 다른 줄 수' 양말이 섞여 어려워집니다.
+   * - scale: 양말 크기 배율 (양말이 많을수록 작게)
+   */
+  stages: [
+    { pairs: 6, timeSec: 35, colors: 6, scale: 1.0 },
+    { pairs: 8, timeSec: 40, colors: 6, scale: 0.95 },
+    { pairs: 10, timeSec: 45, colors: 5, scale: 0.9 },
+    { pairs: 12, timeSec: 50, colors: 4, scale: 0.85 },
+  ],
+  /** 마지막 스테이지 이후로는 같은 구성에 시간만 줄어듭니다 */
+  endless: {
+    timeDropSec: 3,
+    minTimeSec: 30,
+  },
 
-  /** 제한 시간 (초) */
-  timeLimitSec: 60,
+  /** 별점 기준: 남은 시간 비율이 이 이상이면 별 3개 / 2개 (아니면 1개) */
+  stars: { three: 0.45, two: 0.2 },
 
   /** 틀린 짝을 골랐을 때 깎이는 시간 (초). 0이면 감점 없음 */
   wrongPenaltySec: 3,
@@ -27,19 +43,22 @@ export const GAME_CONFIG = {
   /** 클리어 시 남은 시간 1초당 보너스 점수 */
   timeBonusPerSec: 10,
 
-  /** 양말 배치 */
+  /** 양말 더미가 쌓이는 빨래 매트 영역 */
+  tray: {
+    left: 24,
+    right: 696,
+    top: 250,
+    bottom: 1250,
+    /** 매트 가장자리에서 양말 중심까지 띄우는 거리 */
+    padding: 70,
+  },
+
+  /** 양말 더미 배치 */
   layout: {
-    /** 양말이 놓이는 영역 (HUD 아래) */
-    areaTop: 230,
-    areaBottom: 1220,
-    areaSide: 40,
-    columns: 3,
-    /** 칸 안에서 흔들리는 정도 (0~1, 칸 크기 대비) */
-    jitter: 0.28,
+    /** 양말 중심끼리 최소 거리 (px). 작을수록 많이 겹쳐서 어려워짐 */
+    minDistance: 92,
     /** 최대 기울기 (도) */
-    maxRotationDeg: 28,
-    /** 양말 크기 배율 (터치 영역도 같이 커짐) */
-    sockScale: 1.0,
+    maxRotationDeg: 40,
   },
 
   /** 양말 무늬 */
